@@ -17,6 +17,7 @@ import asyncio
 import websockets
 import json
 
+
 # TODO: Make this into a class
 #       Heartbeat system
 #       __init__(): Establish a connection
@@ -24,20 +25,39 @@ import json
 #       recv_handler(): Handle the msg recv, use wol to start computer
 #       initialize system: Make user enter the mac address of the target system, the remote server address and client id
 
+class WolClient:
+    def __init__(self, _mac, _address, _id):
+        mac = _mac
+        address = _address
+        client_id = _id
 
-async def hello():
-    async with websockets.connect("ws://localhost:8266") as websocket:
-        msg = {
-            "mac": "test",
-            "action": "800"
-        }
-        json_data = json.dumps(msg)
-        await websocket.send(json_data)
-        response = await websocket.recv()
-        print(response)
-        # run forever, wating for action
+        # fetch initial server config
+        asyncio.run(self.client_start(mac, address, client_id))
+
+    async def client_start(self, mac, address, client_id):
+        async with websockets.connect(address) as ws:
+            msg = {
+                "id": client_id,
+                "action": "100"
+            }
+            json_data = json.dumps(msg)
+            await ws.send(json_data)
+            response = await ws.recv()
+            json_recv = json.loads(response)
+            if "msg" in json_recv:
+                msg = json_recv["msg"]
+                if msg == "100_1":
+                    print("Server " + address + " connected succefully.")
+                    print("Entering listening mode")
+                    await self.recv_handler(ws)
+
+    async def recv_handler(self, ws):
         while True:
-            msg = await websocket.recv()
+            response = await ws.recv()
+            json_recv = json.loads(response)
+            if "msg" in json_recv:
+                msg = json_recv["msg"]
+                print(msg)
 
 
-asyncio.run(hello())
+wol = WolClient("23333", "ws://127.0.0.1:8266", "Mark_1")
