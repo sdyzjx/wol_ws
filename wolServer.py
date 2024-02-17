@@ -1,3 +1,18 @@
+"""
+Response structure:
+    action:
+        200: start PC
+        100_1: connected successfully
+        800_1: disconnected successfully
+
+Post structure:
+    action:
+        100: Start connection
+        800: Stop connection
+    id: id of the client machine (entered by user)
+
+"""
+
 import websockets
 import asyncio
 import json
@@ -11,7 +26,7 @@ class WolSocket:
 
     def __init__(self, _port):
         port = _port
-        print("Server started at port " + str(port) + " on localhost")
+        print("Websocket server started at port " + str(port) + " on localhost")
         self.clients = {}
 
     async def ws_handle(self, websocket: WebSocketServerProtocol, path: str):
@@ -44,6 +59,6 @@ class WolSocket:
         websocket = self.clients[client_id]
         await websocket.send(json_data)
 
-    async def main(self):
+    async def start_ws_server(self):
         async with websockets.serve(self.ws_handle, "127.0.0.1", self.port):
             await asyncio.Future()
