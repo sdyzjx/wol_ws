@@ -20,9 +20,6 @@ import json
 
 # TODO: Make this into a class
 #       Heartbeat system
-#       __init__(): Establish a connection
-#       __del__(): Disconnect
-#       recv_handler(): Handle the msg recv, use wol to start computer
 #       initialize system: Make user enter the mac address of the target system, the remote server address and client id
 
 class WolClient:

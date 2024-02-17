@@ -2,7 +2,7 @@
 import json
 from aiohttp import web
 import wolServer as ws
-
+import aiohttp_cors
 """
 request format:
     Receive: {
@@ -40,9 +40,9 @@ class apiServer:
                 "msg": "400_1",
                 "client_list": client_id_list
             }
-            response_json = json.dumps(response)
+            # response_json = json.dumps(response)
             print("Clients list successfully checked.")
-            return web.json_response(response_json)
+            return web.json_response(response)
 
         elif action == "500":
             client_id = data.get('client_id')
@@ -52,14 +52,23 @@ class apiServer:
                 response = {
                     "msg": "500_1"
                 }
-                response_json = json.dumps(response)
-                return web.json_response(response_json)
+                # response_json = json.dumps(response)
+                return web.json_response(response)
             else:
                 print("invalid client id. pls try again")
 
     async def start_api_server(self):
         app = web.Application()
         app.add_routes([web.post('/wol', self.handle_api_request)])
+        cors = aiohttp_cors.setup(app, defaults={
+            "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+        })
+        for route in list(app.router.routes()):
+            cors.add(route)
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, 'localhost', self.port)

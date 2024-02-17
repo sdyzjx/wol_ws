@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Control Panel</title>
+<style>
+    :root {
+        /* Dark theme colors */
+        --background-color: #121212;
+        --text-color: #ffffff;
+        --container-bg-color: #1E1E1E;
+        --table-header-bg-color: #333333;
+        --button-bg-color: #0078D7;
+        --button-hover-bg-color: #005EA6;
+        --table-row-border-color: #333333;
+    }
+
+    [data-theme="light"] {
+        /* Light theme colors */
+        --background-color: #f0f0f0;
+        --text-color: #333333;
+        --container-bg-color: #ffffff;
+        --table-header-bg-color: #f2f2f2;
+        --button-bg-color: #46adff;
+        --button-hover-bg-color: #1f99ff;
+        --table-row-border-color: #cccccc;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-family: Arial, sans-serif;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .table-container {
+        width: 800px;
+        margin: auto;
+        box-shadow: 0 10px 20px 0 rgba(0,0,0,0.5);
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--container-bg-color);
+        padding: 20px;
+        transition: background-color 0.3s;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    th, td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--table-row-border-color);
+        transition: background-color 0.3s, border-bottom-color 0.3s;
+    }
+
+    th {
+        background-color: var(--table-header-bg-color);
+        font-size: 0.85em;
+    }
+
+    /* Remove background color from table rows and cells */
+    tr, td {
+        background-color: transparent;
+    }
+
+    th:first-child {
+        border-top-left-radius: 20px;
+    }
+
+    th:last-child {
+        border-top-right-radius: 20px;
+    }
+
+    button {
+        background-color: var(--button-bg-color);
+        color: var(--text-color);
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85em;
+        transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        background-color: var(--button-hover-bg-color);
+    }
+
+    #theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+    }
+
+    .image-container {
+        text-align: center; /* 居中图片 */
+        margin-top: 30px; /* 在表格和图片之间添加一些空间 */
+        margin-bottom: 30px; /* 在图片和页面底部添加一些空间 */
+    }
+
+    .image-container img {
+        width: 800px; /* 设置图片宽度为800像素 */
+        height: auto; /* 高度自动调整以保持宽高比 */
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3); /* 图片阴影 */
+        transition: transform 0.3s, box-shadow 0.3s; /* 动效过渡 */
+        border-radius: 8px; /* 图片圆角 */
+        margin-top: 20px; /* 在图片顶部添加一些空间 */
+    }
+
+    .image-container img:hover {
+        transform: scale(1.03); /* 鼠标悬停时图片放大 */
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.4); /* 鼠标悬停时增加阴影 */
+    }
+</style>
+</head>
+<body data-theme="dark">
+    <button id="theme-toggle">Toggle Theme</button>
+    <h1 style="text-align: center;">Client Control Panel</h1>
+    <div class="table-container">
+        <table id="clientsTable">
+            <thead>
+                <tr>
+                    <th>Client ID</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Client list will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="image-container">
+        <img src="https://doosam.uk/ev_com_42_11.png" alt="Descriptive Alt Text">
+    </div>
+    <script>
+        const toggleButton = document.getElementById('theme-toggle');
+        toggleButton.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            toggleButton.textContent = newTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchClients();
+        });
+
+        function fetchClients() {
+            fetch('http://localhost:5432/wol', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: '400' }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                populateTable(data.client_list);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function populateTable(clients) {
+            const table = document.getElementById("clientsTable").getElementsByTagName('tbody')[0];
+            table.innerHTML = "";  // 清除旧的列表项
+
+            clients.forEach(clientId => {
+                let row = table.insertRow();
+                let cell1 = row.insertCell(0);
+                let cell2 = row.insertCell(1);
+
+                cell1.innerHTML = clientId;
+                cell2.innerHTML = `<button onclick="startPC('${clientId}')">Start PC</button>`;
+            });
+        }
+
+        function startPC(clientId) {
+            fetch('http://localhost:5432/wol', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: '500', client_id: clientId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Start PC request sent for " + clientId);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
