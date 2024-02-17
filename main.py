@@ -1,4 +1,4 @@
-# TODO: develop api system for frontend panel
+# TODO: develop frontend based on javascript
 
 import time
 import asyncio

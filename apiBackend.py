@@ -1,3 +1,4 @@
+# --coding: utf-8 --
 import json
 from aiohttp import web
 import wolServer as ws
@@ -28,10 +29,12 @@ class apiServer:
 
     async def handle_api_request(self, request):
         data = await request.json()
+        print(data)
         action = data.get('action')
         if action == "400":
             # return machine list
-            client_id_list = list(self.socket.client.values())
+            client_id = self.socket.clients
+            client_id_list = list(self.socket.clients.keys())
             # client_id_list_json = json.dumps(client_id_list)
             response = {
                 "msg": "400_1",
@@ -43,7 +46,7 @@ class apiServer:
 
         elif action == "500":
             client_id = data.get('client_id')
-            if client_id in self.socket.client:
+            if client_id in self.socket.clients:
                 await self.socket.sendmsg(client_id, "200")
                 print("Client " + client_id + " power on request sent successfully.")
                 response = {
