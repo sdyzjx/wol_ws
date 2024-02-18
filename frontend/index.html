@@ -154,12 +154,12 @@
         });
 
         function fetchClients() {
-            fetch('http://localhost:5432/wol', {
+            fetch('http://localhost:5000/wol', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ action: '400' }),
+                body: JSON.stringify({action: '400'}),
             })
             .then(response => response.json())
             .then(data => {
@@ -185,12 +185,12 @@
         }
 
         function startPC(clientId) {
-            fetch('http://localhost:5432/wol', {
+            fetch('http://localhost:5000/wol', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ action: '500', client_id: clientId }),
+                body: JSON.stringify({action: '500', client_id: clientId}),
             })
             .then(response => response.json())
             .then(data => {
