@@ -71,6 +71,6 @@ class apiServer:
             cors.add(route)
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, 'localhost', self.port)
+        site = web.TCPSite(runner, '0.0.0.0', self.port)
         await site.start()
         print("api server started at port " + str(self.port) + " on localhost")

@@ -28,7 +28,7 @@ class WolSocket:
 
     def __init__(self, _port):
         self.port = _port
-        print("Websocket server started at port " + str(self.port) + " on localhost")
+        print("Websocket server started at port " + str(self.port) + " on 0.0.0.0")
         self.clients = {}
 
     async def ws_handle(self, websocket: WebSocketServerProtocol, path: str):
@@ -38,19 +38,18 @@ class WolSocket:
             if "id" in json_recv:
                 id = json_recv["id"]
                 action = json_recv["action"]
-
                 if id not in self.clients and action == "100":
                     self.clients[id] = websocket
-                    msg_send = {
-                        "msg": "100_1"  # Connection established
-                    }
-                    json_data = json.dumps(msg_send)
                     print("New connection " + id + " established successfully")
-                    await websocket.send(json_data)
-                    self.test_state = True
+                    await self.sendmsg(id, "100_1")
                 if id in self.clients and action == "800":
+                    await self.sendmsg(id, "800_1")
                     del self.clients[id]
                     print(id + " disconnected")
+                if action == "600":
+                    self.clients[id] = websocket
+                    await self.sendmsg(id, "600_1")
+                    print(id + " reconnected")
 
 
     async def sendmsg(self, client_id, msg):
@@ -60,10 +59,11 @@ class WolSocket:
         }
         json_data = json.dumps(msg_send)
         websocket = self.clients[client_id]
+        print("Sending " + msg + " to " + client_id)
         await websocket.send(json_data)
 
     async def start_ws_server(self):
-        async with websockets.serve(self.ws_handle, "127.0.0.1", self.port):
+        async with websockets.serve(self.ws_handle, "0.0.0.0", self.port):
             await asyncio.Future()
 
     async def heart_beat(self):

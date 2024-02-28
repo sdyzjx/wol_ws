@@ -1,4 +1,3 @@
-# TODO: Final test required
 
 import time
 import asyncio

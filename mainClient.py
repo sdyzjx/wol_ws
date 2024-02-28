@@ -5,8 +5,9 @@ import wolClient as wol
 
 async def main(mac, server, client_id):
     ws_socket = wol.WolClient(mac, server, client_id)
-    ws_task = asyncio.create_task(ws_socket.client_start())
-    client_task = asyncio.create_task(ws_socket.client_control())
+    ws_task = asyncio.create_task(ws_socket.client_control())
+    client_task = asyncio.create_task(ws_socket.input_control())
+    # heartbeat_task = asyncio.create_task(ws_socket.heartbeat_handler())
     await asyncio.gather(ws_task, client_task)
 
 
